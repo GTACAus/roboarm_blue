@@ -161,6 +161,7 @@ const age = performance.now() - Link.lastRx;
 const el = $('link');
 if (BLE) {                         // the pill is the Connect button until a robot is connected
 el.setAttribute('role', 'button');
+$('unlink').hidden = !Ble.dev;     // Disconnect shows while a robot is chosen, connected or still connecting
 if (Ble.rx && age < 2500) { el.textContent = 'Connected: ' + Ble.name; el.className = 'pill'; }
 else if (Ble.dev && Ble.wanted) { el.textContent = 'Connecting to ' + Ble.name + '…'; el.className = 'pill slow'; }
 else { el.textContent = 'Connect your robot'; el.className = 'pill connect'; }
@@ -702,6 +703,7 @@ const setMsub = (sub) => { S.msub = sub; store.set('gtac-msub', sub); motorsDirt
 $('mBasic').addEventListener('click', () => setMsub('basic'));
 $('mAdvanced').addEventListener('click', () => setMsub('advanced'));
 $('link').addEventListener('click', () => { if (BLE) Ble.tap(); });
+$('unlink').addEventListener('click', () => { if (BLE && Ble.dev) Ble.disconnect(); });
 $('helpBtn').addEventListener('click', () => $('help').classList.add('open'));
 $('closeHelp').addEventListener('click', () => $('help').classList.remove('open'));
 $('reset').addEventListener('click', () => { if (confirm('Go back to the starting remote?')) { S.layout = defaults(); saveLayout(); render(); } });

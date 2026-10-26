@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <title>GTAC Robot Arm</title>
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
 <header class="top">
@@ -16,6 +16,7 @@
 </nav>
 <div class="right">
 <button type="button" id="link" class="pill off">Not connected</button>
+<button type="button" id="unlink" class="pill unlink" hidden>Disconnect</button>
 <button id="helpBtn" class="round" aria-label="Help">?</button>
 </div>
 </header>
@@ -115,14 +116,14 @@
 <li>Press the <b>centre</b> button to wake the hub.</li>
 <li>Press <b>left</b> or <b>right</b> until the hub shows program <b>0</b>.</li>
 <li>Press the <b>centre</b> button again to start it. The hub shows a motor letter or <b>R</b>.</li>
-<li>Not connected? Tap <b>Connect your robot</b> at the top and choose your robot's name, for example <b>ROBOT 12</b>. Only one iPad can connect to a robot at a time. To let go of the robot, tap the green <b>Connected</b> button.</li>
+<li>Not connected? Tap <b>Connect your robot</b> at the top and choose your robot's name, for example <b>ROBOT 12</b>. Only one iPad can connect to a robot at a time. To let go of the robot, tap <b>Disconnect</b> at the top.</li>
 <li>Still stuck? Check the board's cable is in <b>port A</b> and the motors are in ports <b>B to F</b>.</li>
 </ol>
 <button class="done" id="closeHelp">Got it</button>
 </div>
 </div>
 <script>window.BLE_REMOTE = !/^(localhost|127\.0\.0\.1)$/.test(location.hostname);   // tools/mock_board.py: HTTP</script>
-<script src="app.js"></script>
+<script src="app.js?v=2"></script>
 <script>
 if (!(navigator.bluetooth && navigator.bluetooth.requestDevice)) document.body.insertAdjacentHTML('afterbegin',
   '<div style="background:#FFCD1F;color:#272A24;padding:12px 18px;font:700 16px/1.4 Figtree,system-ui,sans-serif;text-align:center">' +

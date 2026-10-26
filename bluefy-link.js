@@ -1,5 +1,5 @@
 (function () {
-  const WAIT_MS = 3000; // Increased to 3 seconds to give iOS time to switch apps without a false fallback
+  const WAIT_MS = 3000;
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
     (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
@@ -19,13 +19,19 @@
 
     setTimeout(() => {
       document.removeEventListener('visibilitychange', away);
-      // Only forces Safari fallback if Bluefy genuinely didn't open (user stayed on page)
+      // Fallback: only redirects to web if Bluefy wasn't opened and user stayed on page
       if (!left && !document.hidden) {
-        location.href = web; 
+        location.href = web;
       }
     }, WAIT_MS);
 
-    // Launch Bluefy
-    location.href = 'bluefy://open?url=' + encodedWeb;
+    // FIX: Instead of location.href (which glitches on iOS), 
+    // dynamically create and click a real link to trigger Bluefy natively.
+    const tempLink = document.createElement('a');
+    tempLink.href = 'bluefy://open?url=' + encodedWeb;
+    tempLink.style.display = 'none';
+    document.body.appendChild(tempLink);
+    tempLink.click();
+    document.body.removeChild(tempLink);
   });
 })();

@@ -84,6 +84,15 @@ forget() {
 const dev = this.dev; this.dev = null; this.rx = null; Link.open = false;
 try { if (dev && dev.gatt.connected) dev.gatt.disconnect(); } catch (_) {}
 },
+disconnect() {                     // from a tap on the pill: stop reconnecting and let go of the robot (the board stops the motors)
+const name = this.name;
+this.wanted = false; this.forget(); this.name = ''; linkState();
+toast('Disconnected from ' + name);
+},
+tap() {                            // the pill: Connect when nothing is chosen, otherwise offer to disconnect
+if (!this.dev) { this.choose(); return; }
+if (confirm((this.rx ? 'Disconnect from ' : 'Stop connecting to ') + this.name + '?')) this.disconnect();
+},
 data(view) {
 this.partial += new TextDecoder().decode(view);
 const lines = this.partial.split('\n'); this.partial = lines.pop();
@@ -692,7 +701,7 @@ if (store.get('gtac-noside', false)) { $('code').classList.add('noside'); $('sid
 const setMsub = (sub) => { S.msub = sub; store.set('gtac-msub', sub); motorsDirty = true; drawMotors(); Link.send(); };
 $('mBasic').addEventListener('click', () => setMsub('basic'));
 $('mAdvanced').addEventListener('click', () => setMsub('advanced'));
-$('link').addEventListener('click', () => { if (BLE) Ble.choose(); });
+$('link').addEventListener('click', () => { if (BLE) Ble.tap(); });
 $('helpBtn').addEventListener('click', () => $('help').classList.add('open'));
 $('closeHelp').addEventListener('click', () => $('help').classList.remove('open'));
 $('reset').addEventListener('click', () => { if (confirm('Go back to the starting remote?')) { S.layout = defaults(); saveLayout(); render(); } });

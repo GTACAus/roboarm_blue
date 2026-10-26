@@ -100,6 +100,11 @@
       .steps a.btn:hover {
         background: #0056b3;
       }
+      .nav-buttons button:disabled {
+        opacity: 0.35;
+        background: #007bff;
+        cursor: not-allowed;
+      }
       .center-buttons {
         flex: 1;
         display: flex;
@@ -278,7 +283,7 @@
       <h1>02/05</h1>
       <h2>Connect the motor cables</h2>
 
-      <iframe class="model" src="robot_arm_updates_website/lms-esp32/arm-cables.html" loading="lazy"
+      <iframe class="model" src="robot_arm_updates_website/lms-esp32/arm-cables.html" loading="lazy" data-gate="all"
         title="Arm model: the hub's ports A to F, the gripper, elbow and large motors' cables going to ports C, E and B, and the GTAC board's cable going to port A"></iframe>
 
       <p>Tap the numbers under the arm to go through each step. Drag the arm to turn it.</p>
@@ -294,7 +299,7 @@
       <h1>03/05</h1>
       <h2>Start the arm program on the hub</h2>
 
-      <iframe class="model" src="robot_arm_updates_website/lms-esp32/hub-buttons.html?for=arm" loading="lazy"
+      <iframe class="model" src="robot_arm_updates_website/lms-esp32/hub-buttons.html?for=arm" loading="lazy" data-gate="all"
         title="SPIKE hub model: which buttons turn the hub on, choose program 0 and start it"></iframe>
 
       <p>Tap the numbers under the hub to go through each step. Drag the hub to turn it.</p>
@@ -427,6 +432,19 @@
   function prevPage() {
     if (current > 0) show(current - 1);
   }
+
+  // Next stays faded until the student has seen every step of the model on that card (data-gate="all")
+  // or reached its last step (data-gate="last"); the model pages post each step they show
+  document.querySelectorAll("iframe[data-gate]").forEach((frame) => {
+    const next = frame.closest(".card").querySelector('.nav-buttons button[onclick="nextPage()"]');
+    const seen = new Set();
+    next.disabled = true;
+    window.addEventListener("message", (e) => {
+      if (e.source !== frame.contentWindow || !e.data || typeof e.data.step !== "number") return;
+      seen.add(e.data.step);
+      if (frame.dataset.gate === "last" ? e.data.step === e.data.steps - 1 : seen.size === e.data.steps) next.disabled = false;
+    });
+  });
 
   // Video slideshow with instructions
   const videoSlides = [

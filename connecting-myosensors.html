@@ -56,6 +56,7 @@
       text-decoration:none; display:inline-block;
     }
     .nav-buttons button:hover, .nav-buttons a.btn:hover{ background:#0056b3; }
+    .nav-buttons button:disabled{ opacity:.35; background:#007bff; cursor:not-allowed; }
 
   /* Cable selector */
 
@@ -196,7 +197,7 @@
     <h1>03/06</h1>
     <h2>Connect your sensor cables</h2>
 
-    <iframe class="model" src="robot_arm_updates_website/lms-esp32/wiring-steps.html" loading="lazy"
+    <iframe class="model" src="robot_arm_updates_website/lms-esp32/wiring-steps.html" loading="lazy" data-gate="last"
       title="Model: the sensor's ground, power and signal plugs going onto GND, 3V3 and IO32 on the board, in your cable colours"></iframe>
 
     <p>Choose <b>your cable colours</b> at the top, then tap <b>1 GND</b>, <b>2 3V3</b> and <b>3 IO32</b> to watch each plug go on.
@@ -290,7 +291,7 @@
     <h1>05/06</h1>
     <h2>Start the arm program on the hub</h2>
 
-    <iframe class="model" src="robot_arm_updates_website/lms-esp32/hub-buttons.html?for=myo" loading="lazy"
+    <iframe class="model" src="robot_arm_updates_website/lms-esp32/hub-buttons.html?for=myo" loading="lazy" data-gate="all"
       title="3D SPIKE hub: where to plug in the board and motors, and which buttons start program 0"></iframe>
 
     <p><b>Relax your arm</b> and keep it still while the program starts. Tap the numbers under the hub to go through each step.</p>
@@ -333,6 +334,19 @@
     }
     function nextPage(){ if(current < cards.length - 1) show(current + 1); }
     function prevPage(){ if(current > 0) show(current - 1); }
+
+    // Next stays faded until the student has seen every step of the model on that card (data-gate="all")
+    // or reached its last step, Done (data-gate="last"); the model pages post each step they show
+    document.querySelectorAll('iframe[data-gate]').forEach(frame => {
+      const next = frame.closest('.card').querySelector('.nav-buttons button[onclick="nextPage()"]');
+      const seen = new Set();
+      next.disabled = true;
+      window.addEventListener('message', e => {
+        if (e.source !== frame.contentWindow || !e.data || typeof e.data.step !== 'number') return;
+        seen.add(e.data.step);
+        if (frame.dataset.gate === 'last' ? e.data.step === e.data.steps - 1 : seen.size === e.data.steps) next.disabled = false;
+      });
+    });
 
     // Show the iPad copy of a video on iPads (where a card has two)
     function isiPad(){

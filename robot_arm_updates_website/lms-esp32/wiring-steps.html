@@ -138,6 +138,8 @@ function setStep(s) {
   step = s;
   buttons.forEach(b => b.classList.toggle('sel', +b.dataset.step === s));
   paint(); player.setStep(s);
+  // Tell the instruction card around this page which step is showing (its Next button waits for the steps)
+  if (parent !== window) parent.postMessage({ step: s, steps: buttons.length }, '*');
 }
 buttons.forEach(b => b.addEventListener('click', () => setStep(+b.dataset.step)));
 setStep(0);

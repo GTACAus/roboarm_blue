@@ -1,7 +1,7 @@
 (function () {
-  const WAIT_MS = 1500;
+  const WAIT_MS = 3000; // Increased to 3 seconds to give iOS time to switch apps without a false fallback
   const ios = /iPad|iPhone|iPod/.test(navigator.userAgent) ||
-    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1); // iPadOS asks for desktop sites
+    (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
 
   document.addEventListener('click', (e) => {
     const a = e.target.closest('a[data-bluefy]');
@@ -9,9 +9,9 @@
 
     e.preventDefault();
     const web = a.href;
-    const encodedWeb = encodeURIComponent(web); // Properly encodes the target URL for Bluefy
+    const encodedWeb = encodeURIComponent(web);
 
-    let left = false; // Bluefy opened: this page went to the background
+    let left = false;
     const away = () => { if (document.hidden) left = true; };
 
     document.addEventListener('visibilitychange', away);
@@ -19,12 +19,13 @@
 
     setTimeout(() => {
       document.removeEventListener('visibilitychange', away);
+      // Only forces Safari fallback if Bluefy genuinely didn't open (user stayed on page)
       if (!left && !document.hidden) {
-        location.href = web; // Fallback: opens the regular web page if Bluefy isn't installed
+        location.href = web; 
       }
     }, WAIT_MS);
 
-    // Launch Bluefy with the properly encoded URL parameter
+    // Launch Bluefy
     location.href = 'bluefy://open?url=' + encodedWeb;
   });
 })();

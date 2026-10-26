@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bluefy Deep Link Troubleshooting</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      padding: 20px;
+      background-color: #f4f6f8;
+      color: #333;
+    }
+    h1 { font-size: 1.4rem; color: #111; }
+    p { font-size: 0.95rem; color: #555; margin-bottom: 20px; }
+    .card {
+      background: white;
+      border-radius: 10px;
+      padding: 16px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.08);
+    }
+    .card h3 { margin-top: 0; font-size: 1.1rem; color: #007aff; }
+    .card p { margin-bottom: 12px; font-size: 0.85rem; }
+    .btn {
+      display: inline-block;
+      padding: 10px 16px;
+      background-color: #007aff;
+      color: white;
+      text-decoration: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      border: none;
+      cursor: pointer;
+    }
+    .btn-secondary {
+      background-color: #34c759;
+    }
+    code {
+      background: #eee;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-size: 0.8rem;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Bluefy Link Tester</h1>
+  <p>Test each option below on Safari iOS to see which opens the target page in Bluefy properly.</p>
+
+  <!-- Method 1: Encoded URL -->
+  <div class="card">
+    <h3>Option 1: URL-Encoded Target URL</h3>
+    <p>Encodes special characters (e.g., <code>https%3A%2F%2Froboarm.gtac.edu.au%2Fremote%2F</code>). Standard requirement for many iOS app link schemes.</p>
+    <a class="btn" href="bluefy://open?url=https%3A%2F%2Froboarm.gtac.edu.au%2Fremote%2F">Try Option 1</a>
+  </div>
+
+  <!-- Method 2: Unencoded Raw URL -->
+  <div class="card">
+    <h3>Option 2: Raw (Unencoded) URL</h3>
+    <p>Direct query string parameter without URL encoding.</p>
+    <a class="btn" href="bluefy://open?url=https://roboarm.gtac.edu.au/remote/">Try Option 2</a>
+  </div>
+
+  <!-- Method 3: Direct Scheme without 'open?url=' -->
+  <div class="card">
+    <h3>Option 3: Direct URL Scheme (`bluefy://https://...`)</h3>
+    <p>Some custom browsers parse everything after `bluefy://` as the direct destination web address.</p>
+    <a class="btn" href="bluefy://https://roboarm.gtac.edu.au/remote/">Try Option 3</a>
+  </div>
+
+  <!-- Method 4: iframe Trick -->
+  <div class="card">
+    <h3>Option 4: Hidden `<iframe>` Injection</h3>
+    <p>Triggers scheme launch via background iframe insertion. Prevents Safari from locking navigation timers.</p>
+    <button class="btn btn-secondary" onclick="tryIframe('https://roboarm.gtac.edu.au/remote/')">Try Option 4</button>
+  </div>
+
+  <!-- Method 5: Window.open with target="_blank" -->
+  <div class="card">
+    <h3>Option 5: Window.open (`_blank`)</h3>
+    <p>Executes deep link popup via explicit script click on a new window instance.</p>
+    <button class="btn btn-secondary" onclick="tryWindowOpen('https://roboarm.gtac.edu.au/remote/')">Try Option 5</button>
+  </div>
+
+  <!-- Method 6: Delayed scheme call -->
+  <div class="card">
+    <h3>Option 6: Delayed Execution (`setTimeout`)</h3>
+    <p>Fires the custom scheme call after a 100ms pause to ensure event listeners don't clash.</p>
+    <button class="btn btn-secondary" onclick="tryDelayed('https://roboarm.gtac.edu.au/remote/')">Try Option 6</button>
+  </div>
+
+  <!-- Method 7: Universal HTTPS Link (If Bluefy support is configured) -->
+  <div class="card">
+    <h3>Option 7: Pure Universal Link Direct Navigate</h3>
+    <p>Tests direct window location navigation with encoded parameter.</p>
+    <button class="btn btn-secondary" onclick="tryDirectEncoded('https://roboarm.gtac.edu.au/remote/')">Try Option 7</button>
+  </div>
+
+  <script>
+    const TARGET_URL = "https://roboarm.gtac.edu.au/remote/";
+
+    function tryIframe(url) {
+      const encoded = encodeURIComponent(url);
+      const iframe = document.createElement("iframe");
+      iframe.style.display = "none";
+      iframe.src = "bluefy://open?url=" + encoded;
+      document.body.appendChild(iframe);
+      setTimeout(() => iframe.remove(), 2000);
+    }
+
+    function tryWindowOpen(url) {
+      const encoded = encodeURIComponent(url);
+      window.open("bluefy://open?url=" + encoded, "_blank");
+    }
+
+    function tryDelayed(url) {
+      const encoded = encodeURIComponent(url);
+      setTimeout(() => {
+        window.location.href = "bluefy://open?url=" + encoded;
+      }, 100);
+    }
+
+    function tryDirectEncoded(url) {
+      const encoded = encodeURIComponent(url);
+      window.location.href = "bluefy://open?url=" + encoded;
+    }
+  </script>
+</body>
+</html>

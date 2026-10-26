@@ -60,10 +60,16 @@ class Ble:
             (SERVICE, ((TX_UUID, bluetooth.FLAG_NOTIFY | bluetooth.FLAG_READ),
                        (RX_UUID, bluetooth.FLAG_WRITE | bluetooth.FLAG_WRITE_NO_RESPONSE))),))
         self.ble.gatts_set_buffer(self.rx, 512, True)   # writes add up until read, so long lines survive
-        # Advertising: the service (so the page can find it) and, in the scan response, the name
+        # Advertising: the service (so the page can find it) and the name. The iPad lists a board it has
+        # never connected to from the advertisement alone, before asking for the scan response, so the
+        # name goes in the advertisement too: whole if it fits (8 bytes: "ROBOT 12"), else shortened.
+        # The scan response carries the whole name.
         uuid = bytes(SERVICE)
         self.adv = _adv(0x01, b"\x06") + _adv(0x07, uuid)
-        self.resp = _adv(0x09, name.encode())
+        raw = name.encode()
+        room = 31 - len(self.adv) - 2
+        self.adv += _adv(0x09, raw) if len(raw) <= room else _adv(0x08, raw[:room])
+        self.resp = _adv(0x09, raw)
         self._advertise()
         print("Bluetooth on:", name)
 

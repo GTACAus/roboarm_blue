@@ -48,8 +48,10 @@
       user-select:all;
       -webkit-user-select:all;
     }
-    button{
-      margin-top:18px;
+    button, a.btn{
+      display:inline-block;
+      margin:18px 6px 0;
+      text-decoration:none;
       padding:12px 24px;
       border:none;
       border-radius:25px;
@@ -60,7 +62,7 @@
       font-weight:600;
       cursor:pointer;
     }
-    button:hover{ background:#0056b3; }
+    button:hover, a.btn:hover{ background:#0056b3; }
     #status{ min-height:1.5em; margin:12px 0 0; font-weight:600; }
     ol{ text-align:left; line-height:1.5; margin:20px 0 0; padding-left:1.4em; }
   </style>
@@ -70,9 +72,10 @@
   <div class="card">
     <code class="link" id="link">bluefy://open?url=https://gtacaus.github.io/roboarm_blue/remote/</code>
     <button type="button" id="copy">Copy link</button>
+    <a class="btn" href="shortcuts://create-shortcut">Open Shortcuts</a>
     <p id="status" role="status"></p>
     <ol>
-      <li>In <b>Shortcuts</b>, make a new shortcut with the action <b>Open URLs</b>.</li>
+      <li>Tap <b>Copy link</b>, then <b>Open Shortcuts</b>: it starts a new shortcut. Add the action <b>Open URLs</b>.</li>
       <li>Paste this link as its URL and name it, for example <b>Robot controller</b>.</li>
       <li>Share it and choose <b>Add to Home Screen</b>.</li>
     </ol>

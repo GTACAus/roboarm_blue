@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preload" href="../../fonts/figtree.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face { font-family: "Figtree"; src: url("../../fonts/figtree.woff2") format("woff2"); font-weight: 300 900; font-display: swap }</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sensor Wiring Steps</title>
+<style>
+/* Layout: the board (pre-rendered frames from wiring-steps-3d.html) fills the frame; a step bar along the bottom
+   (Start, 1 GND, 2 3V3, 3 IO32, Done) with the step's instruction beside it. GTAC colours, light only. */
+:root {
+  --eggshell: #F9F6E7; --onyx: #272A24; --cobalt: #4C34E5; --aqua: #6BE7BE; --flame: #FF6D3A; --yellow: #FFCD1F;
+  --muted: #5C6057; --line: #DDD8C2; --card: #FFFFFF;
+  --font: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+html, body { height: 100%; margin: 0 }
+body { background: var(--eggshell); color: var(--onyx); font: 15px/1.45 var(--font); display: flex; flex-direction: column }
+#asm { position: relative; flex: 1; min-height: 260px; overflow: hidden; touch-action: none; cursor: grab; user-select: none; -webkit-user-select: none }
+#asm:active { cursor: grabbing }
+#asm:focus-visible { outline: 3px solid var(--flame); outline-offset: -3px }
+.fp-view { position: absolute }
+.fp-view img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; visibility: hidden }
+.tag-at { position: absolute; width: 0; height: 0; pointer-events: none }
+.lead { position: absolute; left: 0; top: 0; overflow: visible }
+.lead line { stroke: var(--onyx); stroke-width: 2 }
+.pin { position: absolute; left: -5px; top: -5px; width: 10px; height: 10px; border-radius: 50%; background: var(--cobalt);
+  border: 2px solid #fff; box-shadow: 0 0 0 1.5px var(--onyx) }
+.tag-at:has(.dim) .lead, .tag-at:has(.dim) .pin { opacity: .4 }
+.tag { position: absolute; left: 0; top: 0; pointer-events: none; font: 800 13px/1 var(--font); padding: 6px 8px; border-radius: 7px;
+  background: var(--card); border: 2px solid var(--onyx); color: var(--onyx); white-space: nowrap; transition: opacity .2s }
+.tag i { display: inline-block; width: 10px; height: 10px; border-radius: 50%; margin-right: 6px; vertical-align: -1px; border: 1px solid rgba(0, 0, 0, .35) }
+.tag.on { background: var(--yellow); animation: pulse 1.4s ease-in-out infinite }
+.tag.dim { opacity: .45 }
+@keyframes pulse { 50% { box-shadow: 0 0 0 5px rgba(255, 205, 31, .45) } }
+.pick { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; padding: 8px 12px;
+  background: var(--card); border-bottom: 2px solid var(--line) }
+.pick span { font-weight: 700; font-size: 13px; margin-right: 2px }
+.pick button { font: 800 13px/1 var(--font); min-height: 36px; padding: 0 10px; border-radius: 999px; border: 2px solid var(--onyx);
+  background: var(--card); color: var(--onyx); cursor: pointer; display: inline-flex; align-items: center; gap: 4px }
+.pick button i { width: 12px; height: 12px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0, 0, 0, .35) }
+.pick button[aria-pressed="true"] { border-color: var(--cobalt); box-shadow: 0 0 0 2px var(--cobalt) }
+.pick button:focus-visible { outline: 3px solid var(--flame); outline-offset: 2px }
+.hint { position: absolute; bottom: 8px; right: 12px; font-size: 12px; font-weight: 600; color: var(--muted); pointer-events: none }
+.bar { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; align-items: center; padding: 12px 14px;
+  border-top: 2px solid var(--line); background: var(--card) }
+.steps { display: flex; gap: 6px; flex-wrap: wrap }
+.steps button { font: 800 15px/1 var(--font); min-height: 44px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--onyx);
+  background: var(--card); color: var(--onyx); cursor: pointer; display: inline-flex; align-items: center; gap: 7px }
+.steps button i { width: 11px; height: 11px; border-radius: 50%; display: inline-block; border: 1px solid rgba(0, 0, 0, .35) }
+.steps button.sel { background: var(--cobalt); border-color: var(--cobalt); color: #fff }
+.steps button:focus-visible { outline: 3px solid var(--flame); outline-offset: 2px }
+.say { font-size: 16px; min-width: 0 }
+.say b { color: var(--cobalt) }
+@media (max-width: 720px) { .bar { grid-template-columns: 1fr } }
+@media (prefers-reduced-motion: reduce) { .tag { transition: none } .tag.on { animation: none } }
+</style>
+</head>
+<body>
+<div class="pick" role="group" aria-label="Your cable colours"><span>Your cables:</span></div>
+<div id="asm" role="img" aria-label="The LMS-ESP32 board in its blue case and the EMG sensor board. The sensor's three plugs, ground, power and signal, go onto the header pins GND, 3V3 and IO32.">
+  <div class="hint">Drag to turn · drag down to look from above</div>
+</div>
+<div class="bar">
+  <div class="steps" role="group" aria-label="Wiring steps">
+    <button type="button" data-step="0">Start</button>
+    <button type="button" data-step="1"><i></i>1 GND</button>
+    <button type="button" data-step="2"><i></i>2 3V3</button>
+    <button type="button" data-step="3"><i></i>3 IO32</button>
+    <button type="button" data-step="4">Done</button>
+  </div>
+  <div class="say" id="say" aria-live="polite"></div>
+</div>
+
+<script src="frames/wiring/manifest.js"></script>
+<script src="frames-player.js"></script>
+<script>
+// The sensor's cables come in three colour sets (see wiring-io32.jpg): [colour name, hex] for ground, power and signal,
+// and the order the picture shows them in. Keep in step with SETS in wiring-steps-3d.html.
+const SETS = [
+  { gnd: ['black', '#1E1F21'], vcc: ['red', '#C93A2E'],    sig: ['blue', '#3E6FD1'],  shown: ['gnd', 'vcc', 'sig'] },
+  { gnd: ['black', '#1E1F21'], vcc: ['red', '#C93A2E'],    sig: ['brown', '#7A4A2A'], shown: ['gnd', 'sig', 'vcc'] },
+  { gnd: ['grey', '#8A8F94'],  vcc: ['purple', '#7B3FA6'], sig: ['white', '#E2E2DC'], shown: ['vcc', 'gnd', 'sig'] },
+];
+// The order students plug them in: ground first, then power, then the signal.
+const WIRES = [
+  { name: 'GND',  key: 'gnd', lead: [-70, -72], tf: 'translate(-100%, -50%)',
+    say: c => `<b>Step 1.</b> Push the <b>${c}</b> (ground) plug onto <b>GND</b>: the inner pin of the pair right next to the USB-C socket.` },
+  { name: '3V3',  key: 'vcc', lead: [72, -72], tf: 'translate(0, -50%)',
+    say: c => `<b>Step 2.</b> Push the <b>${c}</b> (power) plug onto <b>3V3</b>: the outer pin of that same first pair, beside GND.` },
+  { name: 'IO32', key: 'sig', lead: [-92, 22], tf: 'translate(-100%, -50%)',
+    say: c => `<b>Step 3.</b> Push the <b>${c}</b> (signal) plug onto <b>IO32</b>: on the inner row, four pins further along from GND.` },
+];
+const cap = w => w[0].toUpperCase() + w.slice(1);
+const SAY = [
+  () => 'Choose <b>your cable colours</b> at the top. The three plugs go on the pin header beside the <b>USB-C</b> socket. Tap <b>1 GND</b> to start, or drag to look around.',
+  ...WIRES.map(w => set => w.say(set[w.key][0])),
+  set => `<b>Done.</b> ${WIRES.map(w => `${cap(set[w.key][0])} on ${w.name}`).join(', ')}. Check each plug is pushed all the way down.`,
+];
+// Tags, in the order render_frames.py stored their positions: the three pins (the frames also hold the USB-C socket's, unused).
+// Each label sits away from its pin (lead, in px) on a line, so it doesn't hide the pins
+const TAGS = WIRES.map(w => ({ html: `<i></i>${w.name}`, lead: w.lead, tf: w.tf }));
+const tagClass = (i, s) => i > 2 ? '' : (s === i + 1 ? 'on' : (s > 0 && s < 4 ? 'dim' : ''));
+
+let set = 0, step = 0;
+try { set = Math.min(SETS.length - 1, Math.max(0, +localStorage.getItem('gtac-cable-set') || 0)); } catch (e) {}
+const host = document.getElementById('asm');
+const player = FramesPlayer(host, window.FRAMES, `frames/wiring/${set + 1}/`, TAGS, tagClass);
+const buttons = [...document.querySelectorAll('[data-step]')], say = document.getElementById('say');
+
+// Cable colour picker: one button per set, showing its colours in the picture's order
+const pick = document.querySelector('.pick');
+const picks = SETS.map((c, n) => {
+  const b = document.createElement('button'); b.type = 'button';
+  b.innerHTML = `${n + 1} ` + c.shown.map(k => `<i style="background:${c[k][1]}"></i>`).join('');
+  b.setAttribute('aria-label', `Set ${n + 1}: ${c.shown.map(k => c[k][0]).join(', ')}`);
+  b.addEventListener('click', () => chooseSet(n));
+  pick.appendChild(b); return b;
+});
+function paint() {
+  const c = SETS[set];
+  picks.forEach((b, n) => b.setAttribute('aria-pressed', n === set));
+  WIRES.forEach((w, i) => {
+    buttons[i + 1].querySelector('i').style.background = c[w.key][1];
+    host.querySelectorAll('.tag i')[i].style.background = c[w.key][1];
+    host.querySelectorAll('.tag-at .pin')[i].style.background = c[w.key][1];
+  });
+  say.innerHTML = SAY[step](c);
+}
+function chooseSet(n) {
+  set = n;
+  try { localStorage.setItem('gtac-cable-set', n); } catch (e) {}
+  player.setBase(`frames/wiring/${n + 1}/`); paint();
+}
+function setStep(s) {
+  step = s;
+  buttons.forEach(b => b.classList.toggle('sel', +b.dataset.step === s));
+  paint(); player.setStep(s);
+}
+buttons.forEach(b => b.addEventListener('click', () => setStep(+b.dataset.step)));
+setStep(0);
+</script>
+</body>
+</html>

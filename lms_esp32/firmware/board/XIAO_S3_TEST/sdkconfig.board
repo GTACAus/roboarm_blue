@@ -1,0 +1,6 @@
+# Console over the XIAO's native USB port, so the boot log shows over USB
+CONFIG_ESP_CONSOLE_USB_SERIAL_JTAG=y
+
+# Bluetooth for the iPad remote, as on the real board
+CONFIG_BT_NIMBLE_MAX_CONNECTIONS=1
+CONFIG_LWIP_IPV6=n

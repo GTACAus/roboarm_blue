@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "roboarm-blue-mock",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["lms_esp32/tools/mock_board.py"],
+      "port": 8767
+    }
+  ]
+}

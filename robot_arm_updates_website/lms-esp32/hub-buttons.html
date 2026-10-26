@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<link rel="preload" href="../../fonts/figtree.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face { font-family: "Figtree"; src: url("../../fonts/figtree.woff2") format("woff2"); font-weight: 300 900; font-display: swap }</style>
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Start the Arm Program</title>
+<style>
+/* Layout: the SPIKE hub (pre-rendered frames from hub-buttons-3d.html) fills the frame; a step bar along the bottom
+   with the instruction beside it. The button to press glows; the 5 x 5 display shows what students will see. */
+:root {
+  --eggshell: #F9F6E7; --onyx: #272A24; --cobalt: #4C34E5; --flame: #FF6D3A; --yellow: #FFCD1F;
+  --muted: #5C6057; --line: #DDD8C2; --card: #FFFFFF;
+  --font: "Figtree", system-ui, -apple-system, "Segoe UI", sans-serif;
+  color-scheme: light;
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent }
+html, body { height: 100%; margin: 0 }
+body { background: var(--eggshell); color: var(--onyx); font: 15px/1.45 var(--font); display: flex; flex-direction: column }
+#asm { position: relative; flex: 1; min-height: 260px; overflow: hidden; touch-action: pan-y; cursor: grab; user-select: none; -webkit-user-select: none }
+#asm:active { cursor: grabbing }
+#asm:focus-visible { outline: 3px solid var(--flame); outline-offset: -3px }
+.fp-view { position: absolute }
+.fp-view img { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; visibility: hidden }
+.tag-at { position: absolute; width: 0; height: 0; pointer-events: none }
+.tag { position: absolute; left: 0; top: 0; pointer-events: none; font: 800 14px/1 var(--font); padding: 7px 9px; border-radius: 8px;
+  background: var(--yellow); border: 2px solid var(--onyx); color: var(--onyx); white-space: nowrap }
+.tag.press { animation: pulse 1.4s ease-in-out infinite }
+@keyframes pulse { 50% { box-shadow: 0 0 0 5px rgba(255, 109, 58, .4) } }
+.hint { position: absolute; top: 10px; right: 12px; font-size: 12px; font-weight: 600; color: var(--muted); pointer-events: none }
+.bar { display: grid; grid-template-columns: auto 1fr; gap: 10px 16px; align-items: center; padding: 12px 14px;
+  border-top: 2px solid var(--line); background: var(--card) }
+.steps { display: flex; gap: 6px; flex-wrap: wrap }
+.steps button { font: 800 15px/1 var(--font); min-height: 44px; min-width: 44px; padding: 0 14px; border-radius: 999px; border: 2px solid var(--onyx);
+  background: var(--card); color: var(--onyx); cursor: pointer }
+.steps button.sel { background: var(--cobalt); border-color: var(--cobalt); color: #fff }
+.steps button:focus-visible { outline: 3px solid var(--flame); outline-offset: 2px }
+.say { font-size: 16px; min-width: 0 }
+.say b { color: var(--cobalt) }
+@media (max-width: 720px) { .bar { grid-template-columns: 1fr } }
+@media (prefers-reduced-motion: reduce) { .tag.press { animation: none } }
+</style>
+</head>
+<body>
+<div id="asm" role="img" aria-label="A SPIKE Prime hub: the centre button and the left and right buttons below its 5 by 5 light display, with the button to press in each step highlighted. The display shows a heart, then 0, then R.">
+  <div class="hint">Drag to turn</div>
+</div>
+<div class="bar">
+  <div class="steps" role="group" aria-label="Steps">
+    <button type="button" data-step="0">1</button>
+    <button type="button" data-step="1">2</button>
+    <button type="button" data-step="2">3</button>
+  </div>
+  <div class="say" id="say" aria-live="polite"></div>
+</div>
+
+<script src="frames/hub/manifest.js"></script>
+<script src="frames-player.js"></script>
+<script>
+const SAY = [
+  '<b>Turn the hub on.</b> Press the big <b>centre</b> button.',
+  'Press <b>left</b> or <b>right</b> until the display shows program <b>0</b>.',
+  'Press the <b>centre</b> button to <b>start</b> program 0. The hub shows <b>R or B</b> when the arm is ready.',
+];
+// Tags, in the order render_frames.py stored their positions: the three port tags, then the centre, left and right buttons
+const TAGS = [
+  { html: 'Board → A', tf: 'translate(-50%, -50%)' }, { html: 'Motors → C, E', tf: 'translate(-50%, -50%)' },
+  { html: 'Motor → B', tf: 'translate(-50%, -50%)' },
+  { html: 'Press', cls: 'press', tf: 'translate(-50%, 0)' }, { html: '◀ Left', cls: 'press', tf: 'translate(-50%, 0)' },
+  { html: 'Right ▶', cls: 'press', tf: 'translate(-50%, 0)' },
+];
+
+const player = FramesPlayer(document.getElementById('asm'), window.FRAMES, 'frames/hub/', TAGS);
+const buttons = [...document.querySelectorAll('[data-step]')], say = document.getElementById('say');
+function setStep(s) {
+  buttons.forEach(b => b.classList.toggle('sel', +b.dataset.step === s));
+  say.innerHTML = '<b>' + (s + 1) + '.</b> ' + SAY[s];
+  player.setStep(s);
+}
+buttons.forEach(b => b.addEventListener('click', () => setStep(+b.dataset.step)));
+setStep(0);
+</script>
+</body>
+</html>

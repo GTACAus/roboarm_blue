@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Change How Your Arm Moves — Instructions</title>
+  <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;600;700&display=swap" rel="stylesheet" />
+
+  <style>
+    body {
+      font-family: 'Figtree', system-ui, Arial, sans-serif;
+      background: #f0f0f0;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+
+    /* Each page grows to fit its content. */
+    .card {
+      box-sizing: border-box;
+      background: #fff;
+      border-radius: 15px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+      margin: 16px auto;
+      width: min(900px, calc(100% - 32px));
+      padding: 24px 16px;
+      text-align: center;
+      display: none;
+      flex-direction: column;
+    }
+
+    .card.active { display: flex; }
+    .card h1 { font-size: 2.2em; margin: 6px 0; }
+    .card h2 { font-size: 1.6em; margin: 6px 0 10px; }
+    .card p { font-size: 1.15em; margin: 10px 24px; line-height: 1.45; }
+    .card img { border-radius: 10px; width: 100%; height: auto; margin-top: 10px; }
+
+    video {
+      border-radius: 10px;
+      width: 100%;
+      max-width: 100%;
+      max-height: 65vh;
+      height: auto;
+      object-fit: contain;
+      margin-top: 10px;
+    }
+
+    .img-medium {
+      max-width: 560px;
+      display: block;
+      margin: 10px auto;
+      border: 2px solid #e4dfc8;
+    }
+
+    .steps {
+      text-align: left;
+      font-size: 1.1em;
+      line-height: 1.5;
+      margin: 10px 30px;
+      padding-left: 28px;
+    }
+
+    .steps li { margin-bottom: 8px; }
+    .tip { background: #fff8db; border-radius: 10px; padding: 10px 14px; font-size: 1.05em !important; }
+
+    .nav-buttons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0 15px;
+      margin-top: 24px;
+    }
+
+    .nav-buttons button,
+    .nav-buttons a.btn {
+      margin: 5px;
+      padding: 10px 18px;
+      border: none;
+      border-radius: 25px;
+      background: #007bff;
+      color: #fff;
+      font-size: 1em;
+      cursor: pointer;
+      text-decoration: none;
+      display: inline-block;
+      font-family: inherit;
+    }
+
+    .nav-buttons button:hover,
+    .nav-buttons a.btn:hover { background: #0056b3; }
+
+    @media (max-width: 600px) {
+      .card { padding: 16px 10px; }
+      .card p { margin: 10px 12px; }
+      .steps { margin: 10px 12px; padding-left: 24px; }
+      .nav-buttons { padding: 0 4px; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- 01/03 INTRODUCTION -->
+  <section class="card active" id="c1">
+    <h1>01/03</h1>
+    <h2>Change how your prosthetic moves</h2>
+    <p>
+      You can program your arm with blocks on the iPad. Each control on the remote has a number,
+      and your code decides what happens when you use it: how far a motor turns, how fast, and in which direction.
+    </p>
+    <img src="code-canvas.jpg" alt="The code canvas: blocks on the left, the live remote and motor positions on the right" class="img-medium" />
+
+    <div class="nav-buttons">
+      <a class="btn" href="index.html">◀ Home</a>
+      <button type="button" onclick="nextPage()">Start ▶</button>
+    </div>
+  </section>
+
+  <!-- 02/03 OPEN THE CODE CANVAS -->
+  <section class="card" id="c2">
+    <h1>02/03</h1>
+    <h2>Open the code canvas</h2>
+    <video controls playsinline preload="metadata">
+      <source src="advanced-code.mp4" type="video/mp4" />
+    </video>
+
+    <ol class="steps">
+      <li>Open the <a href="remote/">robot controller</a> and connect to your robot with its <b>Connect</b> button (see <a href="arm-instructions.html">the robotic arm steps</a>).</li>
+      <li>On the <b>Remote</b> tab, choose <b>Advanced (code)</b>, then tap <b>&lt;/&gt; Code</b>.</li>
+      <li>The starting program is already there: each control turns its motor <b>5 degrees</b>.
+        The live remote on the right shows the same numbers as the blocks.</li>
+      <li>Tap <b>▶ Run</b>, then use the remote on the right to test it.</li>
+    </ol>
+
+    <div class="nav-buttons">
+      <button type="button" onclick="prevPage()">◀ Prev</button>
+      <button type="button" onclick="nextPage()">Next ▶</button>
+    </div>
+  </section>
+
+  <!-- 03/03 CHANGE THE CODE -->
+  <section class="card" id="c3">
+    <h1>03/03</h1>
+    <h2>Change your code</h2>
+    <video controls playsinline preload="metadata">
+      <source src="advanced-code-2.mp4" type="video/mp4" />
+    </video>
+
+    <ol class="steps">
+      <li>Tap a number in a <b>turn</b> block and change it: <b>5</b> is a small step, <b>90</b> is a quarter turn.</li>
+      <li>Drag <b>set Motor speed to slow / medium / fast</b> from <b>Motors</b> to change how fast it moves.</li>
+      <li>Try <b>go to position</b> to send a motor to an exact angle, or <b>move all motors home</b>.</li>
+      <li>Tap <b>■ Stop</b>, then <b>▶ Run</b> again to try your changes. Your code is saved on the iPad.</li>
+    </ol>
+    <p class="tip">Stuck? Tap the yellow <b>?</b> in the app for help.</p>
+
+    <div class="nav-buttons">
+      <button type="button" onclick="prevPage()">◀ Prev</button>
+      <a class="btn" href="index.html">Home ▶</a>
+    </div>
+  </section>
+
+  <script>
+    // Navigate between the three pages and pause videos on leaving a page.
+    const cards = Array.from(document.querySelectorAll('.card'));
+    let current = 0;
+
+    function show(index) {
+      if (index < 0 || index >= cards.length) return;
+      cards[current].querySelectorAll('video').forEach(video => video.pause());
+      cards[current].classList.remove('active');
+      current = index;
+      cards[current].classList.add('active');
+    }
+
+    function nextPage() { show(current + 1); }
+    function prevPage() { show(current - 1); }
+  </script>
+</body>
+</html>

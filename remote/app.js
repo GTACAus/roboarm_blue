@@ -162,6 +162,11 @@ const el = $('link');
 if (BLE) {                         // the pill is the Connect button until a robot is connected
 el.setAttribute('role', 'button');
 $('unlink').hidden = !Ble.dev;     // Disconnect shows while a robot is chosen, connected or still connecting
+// Until the pill turns green, the rest of the page can't be tapped (style.css: body.linking), so no presses
+// reach the board half-way through connecting; anything held down is let go
+const linking = !!(Ble.dev && Ble.wanted) && !(Ble.rx && age < 2500);
+if (linking && !document.body.classList.contains('linking')) letGo();
+document.body.classList.toggle('linking', linking);
 if (Ble.rx && age < 2500) { el.textContent = 'Connected: ' + Ble.name; el.className = 'pill'; }
 else if (Ble.dev && Ble.wanted) { el.textContent = 'Connecting to ' + Ble.name + '…'; el.className = 'pill slow'; }
 else { el.textContent = 'Connect your robot'; el.className = 'pill connect'; }
@@ -705,6 +710,10 @@ $('mAdvanced').addEventListener('click', () => setMsub('advanced'));
 $('link').addEventListener('click', () => { if (BLE) Ble.tap(); });
 $('unlink').addEventListener('click', () => { if (BLE && Ble.dev) Ble.disconnect(); });
 $('helpBtn').addEventListener('click', () => $('help').classList.add('open'));
+// A tap on the greyed-out page while connecting lands on the page behind it: say why nothing happens
+document.addEventListener('pointerdown', (e) => {
+if (document.body.classList.contains('linking') && !e.target.closest('.right, #help')) toast('Wait until the button at the top turns green: Connected', 3000);
+});
 $('closeHelp').addEventListener('click', () => $('help').classList.remove('open'));
 $('reset').addEventListener('click', () => { if (confirm('Go back to the starting remote?')) { S.layout = defaults(); saveLayout(); render(); } });
 document.querySelectorAll('[data-add]').forEach((b) => b.addEventListener('click', () => addWidget(b.dataset.add)));

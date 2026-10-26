@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+<link rel="preload" href="fonts/figtree.woff2" as="font" type="font/woff2" crossorigin>
+<style>@font-face { font-family: "Figtree"; src: url("fonts/figtree.woff2") format("woff2"); font-weight: 300 900; font-display: swap }</style>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Robot Controller Link</title>
+  <style>
+    :root{
+      --card-bg: #dbf2ff;
+      --text: #0b1726;
+    }
+    * { box-sizing: border-box; }
+    body{
+      margin:0;
+      font-family: 'Figtree', system-ui, Arial, sans-serif;
+      color: var(--text);
+      background:#fff;
+      min-height:100svh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:32px 16px;
+    }
+    h1{
+      font-size: clamp(1.2rem, 2.5vw + .5rem, 1.8rem);
+      margin: 4px 0 20px;
+      font-weight: 600;
+      text-align:center;
+    }
+    .card{
+      width:min(640px, 100%);
+      border-radius: 28px;
+      background: var(--card-bg);
+      box-shadow: 0 2px 10px rgba(0,0,0,.06);
+      padding:24px;
+      text-align:center;
+    }
+    .link{
+      display:block;
+      background:#fff;
+      border-radius:12px;
+      padding:12px 14px;
+      font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size:.95rem;
+      overflow-wrap:anywhere;
+      user-select:all;
+      -webkit-user-select:all;
+    }
+    button{
+      margin-top:18px;
+      padding:12px 24px;
+      border:none;
+      border-radius:25px;
+      background:#007bff;
+      color:#fff;
+      font-size:1.05em;
+      font-family:inherit;
+      font-weight:600;
+      cursor:pointer;
+    }
+    button:hover{ background:#0056b3; }
+    #status{ min-height:1.5em; margin:12px 0 0; font-weight:600; }
+    ol{ text-align:left; line-height:1.5; margin:20px 0 0; padding-left:1.4em; }
+  </style>
+</head>
+<body>
+  <h1>Robot controller link</h1>
+  <div class="card">
+    <code class="link" id="link">bluefy://open?url=https://gtacaus.github.io/roboarm_blue/remote/</code>
+    <button type="button" id="copy">Copy link</button>
+    <p id="status" role="status"></p>
+    <ol>
+      <li>In <b>Shortcuts</b>, make a new shortcut with the action <b>Open URLs</b>.</li>
+      <li>Paste this link as its URL and name it, for example <b>Robot controller</b>.</li>
+      <li>Share it and choose <b>Add to Home Screen</b>.</li>
+    </ol>
+  </div>
+
+  <script>
+    const link = document.getElementById('link').textContent;
+    const status = document.getElementById('status');
+    function copied(ok) { status.textContent = ok ? 'Copied!' : 'Could not copy: press and hold the link to copy it.'; }
+    function fallback() {            // older browsers, or no permission for the clipboard API
+      const t = document.createElement('textarea');
+      t.value = link; t.setAttribute('readonly', ''); t.style.position = 'fixed'; t.style.opacity = '0';
+      document.body.appendChild(t); t.select(); t.setSelectionRange(0, link.length);
+      let ok = false;
+      try { ok = document.execCommand('copy'); } catch (_) {}
+      t.remove();
+      copied(ok);
+    }
+    document.getElementById('copy').addEventListener('click', () => {
+      if (navigator.clipboard && window.isSecureContext) navigator.clipboard.writeText(link).then(() => copied(true), fallback);
+      else fallback();
+    });
+  </script>
+</body>
+</html>

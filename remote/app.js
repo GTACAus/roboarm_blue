@@ -156,6 +156,7 @@ S.hubMode = +f[1]; S.hubMotor = f[2]; S.mask = +f[3]; motorsDirty = true;
 }
 }
 };
+let notConnectedSince = 0;
 function linkState() {
 const age = performance.now() - Link.lastRx;
 const el = $('link');
@@ -167,6 +168,9 @@ $('unlink').hidden = !Ble.dev;     // Disconnect shows while a robot is chosen, 
 const linking = !!(Ble.dev && Ble.wanted) && !(Ble.rx && age < 2500);
 if (linking && !document.body.classList.contains('linking')) letGo();
 document.body.classList.toggle('linking', linking);
+// Not green for 10 seconds (since the page opened, or since the link dropped): show how to get unstuck
+if (Ble.rx && age < 2500) notConnectedSince = 0; else if (!notConnectedSince) notConnectedSince = performance.now();
+$('stuck').hidden = !notConnectedSince || performance.now() - notConnectedSince < 10000;
 if (Ble.rx && age < 2500) { el.textContent = 'Connected: ' + Ble.name; el.className = 'pill'; }
 else if (Ble.dev && Ble.wanted) { el.textContent = 'Connecting to ' + Ble.name + '…'; el.className = 'pill slow'; }
 else { el.textContent = 'Connect your robot'; el.className = 'pill connect'; }

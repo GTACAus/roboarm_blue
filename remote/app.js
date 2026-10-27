@@ -42,7 +42,7 @@ const BLE_TX = '8f3b0003-5e0b-4c8e-9a1d-7c2b3e4f5a60';           // board -> pag
 /* Bluetooth: messages are lines written to RX; the board's lines arrive as notifications on TX.
 Commands (c=...) are sent in order; plain state messages only need the latest, so they replace each other. */
 const Ble = {
-dev: null, rx: null, busy: false, queue: [], state: null, partial: '', name: '', wanted: false,
+dev: null, rx: null, busy: false, queue: [], state: null, partial: '', name: '', wanted: false, paused: false,
 supported() { return !!(navigator.bluetooth && navigator.bluetooth.requestDevice); },
 async choose() {                   // from a tap: the browser's list of robots
 if (!this.supported()) { toast('This browser has no Bluetooth: open this page in the Bluefy app', 6000); return; }
@@ -66,11 +66,12 @@ const rx = await svc.getCharacteristic(BLE_RX), tx = await svc.getCharacteristic
 tx.addEventListener('characteristicvaluechanged', (e) => this.data(e.target.value));
 await tx.startNotifications();
 if (dev !== this.dev) return;
+if (this.paused) { try { dev.gatt.disconnect(); } catch (_) {} return; }   // hidden while connecting: let go again
 this.rx = rx; this.partial = ''; this.busy = false; this.queue = [];
 Link.open = true; Link.send(); linkState();
 toast('Connected to ' + this.name);
 } catch (e) {
-if (dev !== this.dev || !this.wanted) return;
+if (dev !== this.dev || !this.wanted || this.paused) return;
 toast('Bluetooth: ' + ((e && (e.message || e.name)) || e) + ' (trying again)', 4000);
 setTimeout(() => this.open(dev), 1500);
 }
@@ -78,7 +79,21 @@ setTimeout(() => this.open(dev), 1500);
 lost(dev) {                        // out of range or the board restarted: keep trying until another is chosen
 if (dev !== this.dev) return;
 this.rx = null; Link.open = false; linkState();
-if (this.wanted) setTimeout(() => { if (dev === this.dev && !this.rx) this.open(dev); }, 1000);
+if (this.wanted && !this.paused) setTimeout(() => { if (dev === this.dev && !this.rx && !this.paused) this.open(dev); }, 1000);
+},
+/* The page is hidden (another Bluefy tab, another app, or the tab is closing): let go of the robot so a new
+   tab can connect to it straight away, and connect to the same robot again when this page is shown */
+pause() {
+if (!this.dev || this.paused) return;
+this.paused = true; this.rx = null; Link.open = false;
+try { if (this.dev.gatt.connected) this.dev.gatt.disconnect(); } catch (_) {}
+linkState();
+},
+resume() {
+if (!this.paused) return;
+this.paused = false; notConnectedSince = 0;
+if (this.dev && this.wanted && !this.rx) this.open(this.dev);
+linkState();
 },
 forget() {
 const dev = this.dev; this.dev = null; this.rx = null; Link.open = false;
@@ -734,7 +749,11 @@ document.addEventListener('dblclick', (e) => { if (!e.target.closest('#blockly')
 document.addEventListener('contextmenu', (e) => { if (!e.target.closest('#blockly')) e.preventDefault(); });
 const letGo = () => { for (const k in S.outs) S.outs[k] = [0, 0]; render(); };
 window.addEventListener('blur', letGo);
-document.addEventListener('visibilitychange', () => { if (document.hidden) { stopProgram(); letGo(); } else keepRunning(); });
+document.addEventListener('visibilitychange', () => {
+if (document.hidden) { stopProgram(); letGo(); if (BLE) Ble.pause(); } else { if (BLE) Ble.resume(); keepRunning(); }
+});
+window.addEventListener('pagehide', () => { if (BLE) Ble.pause(); });
+window.addEventListener('pageshow', () => { if (BLE && !document.hidden) Ble.resume(); });
 setInterval(() => Link.send(), 500);                                       // heartbeat
 setInterval(() => { if (!Link.open && S.tab === 'muscle') Link.send(); }, 200);   // no live link: poll the muscle signal
 setInterval(linkState, 500);
